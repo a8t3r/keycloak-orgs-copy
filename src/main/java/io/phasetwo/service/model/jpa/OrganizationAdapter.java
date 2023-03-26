@@ -1,18 +1,12 @@
 package io.phasetwo.service.model.jpa;
 
 import static io.phasetwo.service.Orgs.*;
+import static io.phasetwo.service.model.jpa.entity.OrganizationPositionEntity.TOP_PARENT_ID;
 
 import com.google.common.base.Strings;
-import io.phasetwo.service.model.DomainModel;
-import io.phasetwo.service.model.InvitationModel;
-import io.phasetwo.service.model.OrganizationModel;
-import io.phasetwo.service.model.OrganizationRoleModel;
-import io.phasetwo.service.model.jpa.entity.DomainEntity;
-import io.phasetwo.service.model.jpa.entity.InvitationEntity;
-import io.phasetwo.service.model.jpa.entity.OrganizationAttributeEntity;
-import io.phasetwo.service.model.jpa.entity.OrganizationEntity;
-import io.phasetwo.service.model.jpa.entity.OrganizationMemberEntity;
-import io.phasetwo.service.model.jpa.entity.OrganizationRoleEntity;
+import io.phasetwo.service.model.*;
+import io.phasetwo.service.model.jpa.entity.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -207,6 +201,8 @@ public class OrganizationAdapter implements OrganizationModel, JpaModel<Organiza
     if (!hasMembership(user)) return;
     org.getMembers().removeIf(m -> m.getUserId().equals(user.getId()));
     getRolesStream().forEach(r -> r.revokeRole(user));
+    getPositionsStream().forEach(p -> p.removeUser(user));
+
     if (user.getEmail() != null) revokeInvitations(user.getEmail());
   }
 
@@ -253,7 +249,17 @@ public class OrganizationAdapter implements OrganizationModel, JpaModel<Organiza
 
   @Override
   public void removeRole(String name) {
+    // remove role from organization
     org.getRoles().removeIf(r -> r.getName().equals(name));
+
+    // remove role from organization positions
+    org.getPositions().stream()
+        .flatMap(it -> it.getRoleMappings().stream())
+        .filter(it -> name.equals(it.getRole().getName()))
+        .forEach(it -> {
+          OrganizationPositionAdapter positionAdapter = new OrganizationPositionAdapter(session, it.getPosition(), em, this);
+          positionAdapter.revokeRole(new OrganizationRoleAdapter(session, realm, em, it.getRole()));
+        });
   }
 
   @Override
@@ -278,5 +284,35 @@ public class OrganizationAdapter implements OrganizationModel, JpaModel<Organiza
                   && config.containsKey(ORG_OWNER_CONFIG_KEY)
                   && getId().equals(config.get(ORG_OWNER_CONFIG_KEY));
             });
+  }
+
+  @Override
+  public Stream<OrganizationPositionModel> getPositionsStream() {
+    return org.getPositions().stream()
+        .map(it -> new OrganizationPositionAdapter(session, it, em, this));
+  }
+
+  @Override
+  public Stream<OrganizationPositionModel> getTopPositionsStream() {
+    return org.getPositions().stream()
+        .filter(it -> it.getParentId().equals(TOP_PARENT_ID))
+        .map(it -> new OrganizationPositionAdapter(session, it, em, this));
+  }
+
+  @Override
+  public OrganizationPositionModel addPosition(String name, OrganizationPositionModel head) {
+    OrganizationPositionEntity p = new OrganizationPositionEntity();
+    p.setId(KeycloakModelUtils.generateId());
+    p.setName(name);
+    p.setParentId(head == null ? TOP_PARENT_ID : head.getId());
+    p.setOrganization(org);
+    em.persist(p);
+    org.getPositions().add(p);
+    return new OrganizationPositionAdapter(session, p, em, this);
+  }
+
+  @Override
+  public void removePosition(OrganizationPositionModel position) {
+    org.getPositions().removeIf(it -> it.getId().equals(position.getId()));
   }
 }

@@ -1,9 +1,13 @@
 package io.phasetwo.service.model;
 
 import java.util.stream.Stream;
+
+import io.phasetwo.service.model.jpa.entity.OrganizationRoleEntity;
 import org.keycloak.models.UserModel;
 
 public interface OrganizationRoleModel {
+
+  OrganizationRoleEntity getEntity();
 
   String getId();
 

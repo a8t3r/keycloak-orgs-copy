@@ -12,7 +12,6 @@ import io.phasetwo.service.representation.Organization;
 import java.io.IOException;
 import java.net.URI;
 import javax.validation.Valid;
-import javax.validation.constraints.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -90,6 +89,16 @@ public class OrganizationResource extends OrganizationAdminResource {
     } else {
       throw new NotAuthorizedException(
           String.format("Insufficient permission to access domains for %s", organization.getId()));
+    }
+  }
+
+  @Path("positions")
+  public PositionsResource positions() {
+    if (auth.hasViewOrgs() || auth.hasOrgViewPositions(organization)) {
+      return new PositionsResource(this, organization);
+    } else {
+      throw new NotAuthorizedException(
+              String.format("Insufficient permission to access positions for %s", organization.getId()));
     }
   }
 

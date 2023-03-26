@@ -151,6 +151,8 @@ public class OrganizationAdminAuth extends AdminAuth {
   public static final String ORG_ROLE_MANAGE_MEMBERS = "manage-members";
   public static final String ORG_ROLE_VIEW_ROLES = "view-roles";
   public static final String ORG_ROLE_MANAGE_ROLES = "manage-roles";
+  public static final String ORG_ROLE_VIEW_POSITIONS = "view-positions";
+  public static final String ORG_ROLE_MANAGE_POSITIONS = "manage-positions";
   public static final String ORG_ROLE_VIEW_INVITATIONS = "view-invitations";
   public static final String ORG_ROLE_MANAGE_INVITATIONS = "manage-invitations";
   public static final String ORG_ROLE_VIEW_IDENTITY_PROVIDERS = "view-identity-providers";
@@ -233,6 +235,14 @@ public class OrganizationAdminAuth extends AdminAuth {
    */
   boolean hasOrgManageRoles(OrganizationModel org) {
     return hasOrgRole(org, ORG_ROLE_MANAGE_ROLES);
+  }
+
+  boolean hasOrgViewPositions(OrganizationModel org) {
+    return hasOrgRole(org, ORG_ROLE_VIEW_POSITIONS);
+  }
+
+  boolean hasOrgManagePositions(OrganizationModel org) {
+    return hasOrgRole(org, ORG_ROLE_MANAGE_POSITIONS);
   }
 
   /**

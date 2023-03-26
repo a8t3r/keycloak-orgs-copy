@@ -4,13 +4,19 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MoreCollectors;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import io.phasetwo.service.model.jpa.entity.OrganizationPositionEntity;
+import io.phasetwo.service.util.PositionUtils;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.provider.ProviderEvent;
+
+import static io.phasetwo.service.model.jpa.entity.OrganizationPositionEntity.TOP_PARENT_ID;
 
 public interface OrganizationModel {
 
@@ -104,6 +110,33 @@ public interface OrganizationModel {
   OrganizationRoleModel addRole(String name);
 
   Stream<IdentityProviderModel> getIdentityProvidersStream();
+
+  Stream<OrganizationPositionModel> getPositionsStream();
+
+  Stream<OrganizationPositionModel> getTopPositionsStream();
+
+  default Optional<OrganizationPositionModel> getPositionById(String positionId) {
+    return getPositionsStream()
+        .filter(it -> it.getId().equals(positionId))
+        .findFirst();
+  }
+
+  default Optional<OrganizationPositionModel> getPositionByName(String positionName) {
+    return getPositionsStream()
+        .filter(it -> it.getName().equals(positionName))
+        .findFirst();
+  }
+
+  OrganizationPositionModel addPosition(String name, OrganizationPositionModel head);
+
+  default Stream<OrganizationRoleModel> getRolesStreamFromPositions(UserModel user) {
+    return getPositionsStream()
+        .filter(it -> it.hasUser(user))
+        .flatMap(PositionUtils::expandPosition)
+        .flatMap(it -> it.getRoles().stream());
+  }
+
+  void removePosition(OrganizationPositionModel position);
 
   interface OrganizationEvent extends ProviderEvent {
     OrganizationModel getOrganization();

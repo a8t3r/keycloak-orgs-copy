@@ -3,12 +3,18 @@ package io.phasetwo.service.resource;
 import static io.phasetwo.service.resource.Converters.*;
 
 import io.phasetwo.service.model.OrganizationModel;
+import io.phasetwo.service.model.OrganizationRoleModel;
 import io.phasetwo.service.representation.Organization;
 import io.phasetwo.service.representation.OrganizationRole;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.validation.constraints.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
+import io.phasetwo.service.util.PositionUtils;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.UserModel;
@@ -48,9 +54,13 @@ public class UserResource extends OrganizationAdminResource {
     OrganizationModel org = orgs.getOrganizationById(realm, orgId);
     if (auth.hasViewOrgs() || auth.hasOrgViewRoles(org)) {
       if (org.hasMembership(user)) {
+        Set<String> roleIdsFromPositions = org.getRolesStreamFromPositions(user)
+            .map(OrganizationRoleModel::getId)
+            .collect(Collectors.toSet());
+
         return org.getRolesStream()
-            .filter(r -> r.hasRole(user))
-            .map(r -> convertOrganizationRole(r));
+            .filter(r -> roleIdsFromPositions.contains(r.getId()) || r.hasRole(user))
+            .map(Converters::convertOrganizationRole);
       } else {
         throw new NotFoundException("User is not a member of the organization");
       }

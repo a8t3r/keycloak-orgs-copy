@@ -1,0 +1,86 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+  <changeSet author="a8t3r" id="ORGANIZATION-POSITION-1">
+    <createTable tableName="ORGANIZATION_POSITION">
+      <column name="ID" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="ORGANIZATION_POSITION_PK"/>
+      </column>
+      <column name="ORGANIZATION_ID" type="VARCHAR(36)"/>
+      <column name="PARENT_ID" type="VARCHAR(36)"/>
+      <column name="NAME" type="NVARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="DISPLAY_NAME" type="NVARCHAR(255)"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="a8t3f" id="ORGANIZATION-POSITION-2">
+    <addForeignKeyConstraint
+            baseColumnNames="ORGANIZATION_ID"
+            baseTableName="ORGANIZATION_POSITION"
+            constraintName="FK_ORGANIZATION_POSITION_TO_ORGANIZATION"
+            referencedTableName="ORGANIZATION"
+            referencedColumnNames="ID"
+            deferrable="false" initiallyDeferred="false"
+    />
+  </changeSet>
+
+  <changeSet author="a8t3r" id="ORGANIZATION-POSITION-ROLES-1">
+    <createTable tableName="ORGANIZATION_POSITION_ROLES">
+      <column name="ID" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="ORGANIZATION_POSITION_ROLES_PK"/>
+      </column>
+      <column name="ROLE_ID" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="POSITION_ID" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CREATED_AT" type="TIMESTAMP"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="a8t3r" id="ORGANIZATION-POSITION-ROLES-2">
+    <addForeignKeyConstraint
+            baseColumnNames="ROLE_ID"
+            baseTableName="ORGANIZATION_POSITION_ROLES"
+            constraintName="FK_ORGANIZATION_POSITION_ROLES_TO_ROLE"
+            referencedTableName="ORGANIZATION_ROLE"
+            referencedColumnNames="ID"
+            deferrable="false" initiallyDeferred="false"
+    />
+    <addForeignKeyConstraint
+            baseColumnNames="POSITION_ID"
+            baseTableName="ORGANIZATION_POSITION_ROLES"
+            constraintName="FK_ORGANIZATION_POSITION_ROLES_TO_POSITION"
+            referencedTableName="ORGANIZATION_POSITION"
+            referencedColumnNames="ID"
+            deferrable="false" initiallyDeferred="false"
+    />
+  </changeSet>
+
+  <changeSet author="a8t3r" id="USER_ORGANIZATION_POSITION_MAPPING-1">
+    <createTable tableName="USER_ORGANIZATION_POSITION_MAPPING">
+      <column name="ID" type="VARCHAR(36)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="USER_ORGANIZATION_POSITION_MAPPING_PK"/>
+      </column>
+      <column name="USER_ID" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="POSITION_ID" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="CREATED_AT" type="TIMESTAMP"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="a8t3r" id="USER_ORGANIZATION_POSITION_MAPPING-2">
+    <addForeignKeyConstraint
+            baseColumnNames="POSITION_ID"
+            baseTableName="ORGANIZATION_POSITION_ROLES"
+            constraintName="FK_USER_ORGANIZATION_POSITION_MAPPING_TO_POSITION"
+            referencedTableName="ORGANIZATION_POSITION"
+            referencedColumnNames="ID"
+            deferrable="false" initiallyDeferred="false"
+    />
+  </changeSet>
+
+</databaseChangeLog>

@@ -4,16 +4,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.phasetwo.service.model.InvitationModel;
 import io.phasetwo.service.model.OrganizationModel;
+import io.phasetwo.service.model.OrganizationPositionModel;
 import io.phasetwo.service.model.OrganizationRoleModel;
 import io.phasetwo.service.model.jpa.entity.InvitationEntity;
 import io.phasetwo.service.model.jpa.entity.TeamEntity;
-import io.phasetwo.service.representation.Invitation;
-import io.phasetwo.service.representation.Organization;
-import io.phasetwo.service.representation.OrganizationRole;
-import io.phasetwo.service.representation.Team;
+import io.phasetwo.service.representation.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.keycloak.models.UserModel;
 import org.keycloak.models.jpa.entities.UserEntity;
 import org.keycloak.representations.account.UserRepresentation;
 
@@ -86,5 +87,12 @@ public class Converters {
         .inviterId(e.getInviter().getId())
         .organizationId(e.getOrganization().getId())
         .roles(Lists.newArrayList(e.getRoles()));
+  }
+
+  public static OrganizationPosition convertPositionModelToPosition(OrganizationPositionModel model) {
+    return new OrganizationPosition()
+            .id(model.getId())
+            .name(model.getName())
+            .displayName(model.getDisplayName());
   }
 }

@@ -1,11 +1,17 @@
 package io.phasetwo.service.protocol.oidc.mappers;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.phasetwo.service.model.OrganizationProvider;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import io.phasetwo.service.model.OrganizationRoleModel;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -51,17 +57,20 @@ public class OrganizationRoleMapper extends AbstractOrganizationMapper {
     Map<String, Object> claim = Maps.newHashMap();
     orgs.getUserOrganizationsStream(realm, user)
         .forEach(
-            o -> {
-              List<String> roles = Lists.newArrayList();
-              o.getRolesStream()
-                  .forEach(
-                      r -> {
-                        if (r.hasRole(user)) roles.add(r.getName());
-                      });
-              Map<String, Object> org = Maps.newHashMap();
-              org.put("name", o.getName());
-              org.put("roles", roles);
-              claim.put(o.getId(), org);
+            org -> {
+              Set<String> roleIdsFromPositions = org.getRolesStreamFromPositions(user)
+                  .map(OrganizationRoleModel::getId)
+                  .collect(Collectors.toSet());
+
+              List<String> roles = org.getRolesStream()
+                  .filter(r -> roleIdsFromPositions.contains(r.getId()) || r.hasRole(user))
+                  .map(OrganizationRoleModel::getName)
+                  .collect(Collectors.toList());
+
+              claim.put(org.getId(), ImmutableMap.of(
+                  "name", org.getName(),
+                  "roles", roles
+              ));
             });
     log.debugf("created user %s claim %s", user.getUsername(), claim);
     return claim;

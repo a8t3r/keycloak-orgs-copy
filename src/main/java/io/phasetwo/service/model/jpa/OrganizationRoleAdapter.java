@@ -3,6 +3,8 @@ package io.phasetwo.service.model.jpa;
 import io.phasetwo.service.model.OrganizationRoleModel;
 import io.phasetwo.service.model.jpa.entity.OrganizationRoleEntity;
 import io.phasetwo.service.model.jpa.entity.UserOrganizationRoleMappingEntity;
+
+import java.util.Objects;
 import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import org.keycloak.models.KeycloakSession;
@@ -84,5 +86,18 @@ public class OrganizationRoleAdapter
   @Override
   public boolean hasRole(UserModel user) {
     return role.getUserMappings().stream().anyMatch(m -> m.getUserId().equals(user.getId()));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    OrganizationRoleAdapter that = (OrganizationRoleAdapter) o;
+    return role.equals(that.role);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(role);
   }
 }

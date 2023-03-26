@@ -96,6 +96,13 @@ public class OrganizationEntity {
       mappedBy = "organization")
   protected Collection<InvitationEntity> invitations = new ArrayList<InvitationEntity>();
 
+  @OneToMany(
+      fetch = FetchType.LAZY,
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      mappedBy = "organization")
+  protected Collection<OrganizationPositionEntity> positions = new ArrayList<OrganizationPositionEntity>();
+
   public String getId() {
     return id;
   }
@@ -150,6 +157,14 @@ public class OrganizationEntity {
 
   public void setInvitations(Collection<InvitationEntity> invitations) {
     setCollection(invitations, this.invitations);
+  }
+
+  public Collection<OrganizationPositionEntity> getPositions() {
+    return positions;
+  }
+
+  public void setPositions(Collection<OrganizationPositionEntity> positions) {
+    this.positions = positions;
   }
 
   public String getName() {
