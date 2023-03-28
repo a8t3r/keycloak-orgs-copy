@@ -61,7 +61,7 @@
     <addUniqueConstraint
             tableName="ORGANIZATION_ROLE"
             columnNames="ORGANIZATION_ID,NAME"
-            constraintName="UK_ORGANIZATION-POSITION-ROLES-ORGANIZATION-AND-NAME"/>
+            constraintName="UK_ORGANIZATION_POSITION_ROLES_ORGANIZATION_AND_NAME"/>
   </changeSet>
 
   <changeSet author="a8t3r" id="USER_ORGANIZATION_POSITION_MAPPING-1">
@@ -92,7 +92,7 @@
       <addUniqueConstraint
               tableName="USER_ORGANIZATION_POSITION_MAPPING"
               columnNames="POSITION_ID,USER_ID"
-              constraintName="UK_USER_ORGANIZATION_POSITION_MAPPING-POSITION-AND-USER"
+              constraintName="UK_USER_ORGANIZATION_POSITION_MAPPING_POSITION_AND_USER"
       />
   </changeSet>
 
