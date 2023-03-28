@@ -71,6 +71,29 @@ public class PositionsTest extends AbstractResourceTest {
   }
 
   @Test
+  public void testPositionUsersPagination() {
+    String user1Id = createUser(server.client(), REALM, "johndoe").getId();
+    String user2Id = createUser(server.client(), REALM, "janedoe").getId();
+    organizations.organization(orgId).memberships().add(user1Id);
+    organizations.organization(orgId).memberships().add(user2Id);
+
+    OrganizationPositionResource positionResource = createPosition();
+    positionResource.assignUser(user1Id);
+    positionResource.assignUser(user2Id);
+
+    List<io.phasetwo.client.openapi.model.UserRepresentation> users = positionResource.users();
+    assertThat(users, hasSize(2));
+
+    users = positionResource.users(0, 1);
+    assertThat(users, hasSize(1));
+    assertThat(users.get(0).getUsername(), is("johndoe"));
+
+    users = positionResource.users(1, 1);
+    assertThat(users, hasSize(1));
+    assertThat(users.get(0).getUsername(), is("janedoe"));
+  }
+
+  @Test
   public void testUserAssign() {
     OrganizationPositionResource positionResource = createPosition();
     String userId = createUser(server.client(), REALM, "johndoe").getId();

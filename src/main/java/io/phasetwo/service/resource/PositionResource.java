@@ -196,8 +196,16 @@ public class PositionResource extends OrganizationAdminResource {
   @GET
   @Path("/users")
   @Produces(MediaType.APPLICATION_JSON)
-  public Stream<UserRepresentation> getPositionUsers() {
-    return position.getUserStream().map(it -> toRepresentation(session, realm, it));
+  public Stream<UserRepresentation> getPositionUsers(
+      @QueryParam("first") Integer firstResult,
+      @QueryParam("max") Integer maxResults
+  ) {
+    int first = firstResult != null ? firstResult : 0;
+    int max = maxResults != null ? maxResults : Integer.MAX_VALUE;
+    return position.getUserStream()
+        .skip(first)
+        .limit(max)
+        .map(it -> toRepresentation(session, realm, it));
   }
 
   @PUT
