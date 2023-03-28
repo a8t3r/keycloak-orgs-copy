@@ -57,6 +57,12 @@
             deferrable="false" initiallyDeferred="false"
     />
   </changeSet>
+  <changeSet author="a8t3r" id="ORGANIZATION-POSITION-ROLES-3">
+    <addUniqueConstraint
+            tableName="ORGANIZATION_ROLE"
+            columnNames="ORGANIZATION_ID,NAME"
+            constraintName="UK_ORGANIZATION-POSITION-ROLES-ORGANIZATION-AND-NAME"/>
+  </changeSet>
 
   <changeSet author="a8t3r" id="USER_ORGANIZATION_POSITION_MAPPING-1">
     <createTable tableName="USER_ORGANIZATION_POSITION_MAPPING">
@@ -81,6 +87,13 @@
             referencedColumnNames="ID"
             deferrable="false" initiallyDeferred="false"
     />
+  </changeSet>
+  <changeSet author="a8t3r" id="USER_ORGANIZATION_POSITION_MAPPING-3">
+      <addUniqueConstraint
+              tableName="USER_ORGANIZATION_POSITION_MAPPING"
+              columnNames="POSITION_ID,USER_ID"
+              constraintName="UK_USER_ORGANIZATION_POSITION_MAPPING-POSITION-AND-USER"
+      />
   </changeSet>
 
 </databaseChangeLog>

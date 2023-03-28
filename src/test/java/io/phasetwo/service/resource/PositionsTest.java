@@ -52,8 +52,9 @@ public class PositionsTest extends AbstractResourceTest {
     organizations.organization(orgId).delete();
   }
 
-  private String createPosition() {
-    return positions.createTop(new OrganizationPositionRepresentation().name("position"));
+  private OrganizationPositionResource createPosition() {
+    String positionId = positions.createTop(new OrganizationPositionRepresentation().name("position"));
+    return positions.position(positionId);
   }
 
   private Map<String, String> createPositionHierarchy(Graph<String> hierarchy) {
@@ -70,8 +71,27 @@ public class PositionsTest extends AbstractResourceTest {
   }
 
   @Test
+  public void testUserAssign() {
+    OrganizationPositionResource positionResource = createPosition();
+    String userId = createUser(server.client(), REALM, "johndoe").getId();
+
+    assertThat(positionResource.isAssignedUser(userId), is(false));
+    assertThrows(ClientErrorException.class, () -> positionResource.assignUser(userId));
+
+    organizations.organization(orgId).memberships().add(userId);
+    assertThat(positionResource.isAssignedUser(userId), is(false));
+
+    positionResource.assignUser(userId);
+    assertThat(positionResource.isAssignedUser(userId), is(true));
+    positionResource.assignUser(userId);
+
+    positionResource.removeUser(userId);
+    assertThat(positionResource.isAssignedUser(userId), is(false));
+  }
+
+  @Test
   public void testPositionLifecycle() {
-    String positionId = createPosition();
+    String positionId = createPosition().get().getId();
     List<OrganizationPositionRepresentation> list = positions.getTop();
     assertThat(list, hasSize(1));
     assertThat(list.get(0).getId(), equalTo(positionId));
@@ -113,8 +133,7 @@ public class PositionsTest extends AbstractResourceTest {
     rolesResource.create(new OrganizationRoleRepresentation().name("eat-fruits"));
     rolesResource.create(new OrganizationRoleRepresentation().name("eat-meat"));
 
-    String positionId = createPosition();
-    OrganizationPositionResource positionResource = positions.position(positionId);
+    OrganizationPositionResource positionResource = createPosition();
     assertThat(positionResource.directRoles(), empty());
 
     positionResource.grantRole("eat-fruits");
@@ -138,8 +157,7 @@ public class PositionsTest extends AbstractResourceTest {
     OrganizationResource organizationResource = organizations.organization(orgId);
     OrganizationRolesResource rolesResource = organizationResource.roles();
     rolesResource.create(new OrganizationRoleRepresentation().name("eat-fruits"));
-    String positionId = createPosition();
-    OrganizationPositionResource positionResource = positions.position(positionId);
+    OrganizationPositionResource positionResource = createPosition();
     UserRepresentation user = createUser(server.client(), REALM, "johndoe");
     positionResource.grantRole("eat-fruits");
 

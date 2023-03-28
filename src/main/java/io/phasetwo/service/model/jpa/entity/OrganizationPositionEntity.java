@@ -6,9 +6,6 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@NamedQueries({
-    @NamedQuery(name="getOrganizationPositionIdsByParent", query="select u.id from OrganizationPositionEntity u where u.parentId = :parent")
-})
 @Table(
     name = "ORGANIZATION_POSITION",
     uniqueConstraints = {@UniqueConstraint(columnNames = {"ORGANIZATION_ID", "NAME"})}

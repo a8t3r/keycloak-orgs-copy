@@ -230,6 +230,17 @@ public class PositionResource extends OrganizationAdminResource {
     }
   }
 
+  @GET
+  @Path("/users/{userId}")
+  public Response isAssignedToPosition(@PathParam("userId") String userId) {
+    UserModel user = session.users().getUserById(realm, userId);
+    if (user != null && position.hasUser(user)) {
+      return Response.noContent().build();
+    } else {
+      throw new NotFoundException(String.format("User %s doesn't assigned to position %s", userId, position.getName()));
+    }
+  }
+
   @DELETE
   @Path("/users/{userId}")
   public Response removeUserFromPosition(@PathParam("userId") String userId) {
